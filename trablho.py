@@ -1,5 +1,8 @@
 import sys
 import os
+
+clear = lambda: os.system('clear')
+
 # Classe cliente
 class Cliente:
 	def __init__(self, nome, telefone):
@@ -7,15 +10,41 @@ class Cliente:
 		self.nome = nome
 		self.telefone = telefone
 	
-	def addConta(self, conta)
-		self.contas.appenf(conta)
+	def add(self, conta):
+		self.contas.append(conta)
+
+	def procura(self, numero):
+		for c in self.contas:
+			if(c.numero == numero):
+				return c
+		return None
 
 class Clientes:
-	def __init__(self)
+	def __init__(self):
 		self.lista = []
 
-	def addCliente(self, cliente)
+	def add(self, cliente):
 		self.lista.append(cliente)
+
+	def procura(self, nome):
+		for c in self.lista:
+			if(c.nome == nome):
+				return c
+		return None
+
+	def listagem(self):
+		for c in self.lista:
+			print(c.nome)
+		
+
+	def conta(self, numero):
+		for c in self.lista:
+			cto = c.procura(numero)
+			if(cto is None):
+				continue
+			return cto
+		return None
+			
 
 class Movimentacao:
 	def __init__(self, operacao, valor):
@@ -39,17 +68,18 @@ class Conta:
 		valor = 0
 		for m in self.movimentacoes:
 			valor = valor + m.valor
-
 		return valor
 
 	def extrato(self):
 		print("*********** EXTRATO *************")
-		print("Extrato da conta numero: " + self.numero)
+		print("Conta de " + self.cliente.nome)
+		print("Extrato da conta numero: {0:10d}".format(self.numero))
 		valor = 0
 		for m in self.movimentacoes:
 			valor = valor + m.valor
 			print(m)
 		print "{0:22s} {1:10.2f}".format("SALDO", valor)
+		print "{0:22s} {1:10.2f}".format("DISPONIVEL", valor)
 		print("*********************************")
 
 		
@@ -63,20 +93,29 @@ class Conta:
 		self.movimentacoes.append(m)
 
 class ContaEspecial(Conta):
-	def __init__(self, numero, saldo, limite):
+	def __init__(self, numero, limite, cliente):
 		self.numero = numero
-		self.saldo = saldo
 		self.limite = limite
+		self.cliente = cliente
+		self.movimentacoes = []
 
-	def saldo(self):
-		print("Limite: " + self.limite)
-		print("Saldo.: " + self.saldo)
+	def extrato(self):
+		print("*********** EXTRATO *************")
+		print("Conta de " + self.cliente.nome)
+		print("Extrato da conta numero: {0:d}".format(self.numero))
+		valor = 0
+		for m in self.movimentacoes:
+			valor = valor + m.valor
+			print(m)
+		print "{0:22s} {1:10.2f}".format("SALDO", valor)
+		print "{0:22s} {1:10.2f}".format("LIMITE", self.limite)
+		print "{0:22s} {1:10.2f}".format("DISPONIVEL", self.limite + valor)
+		print("*********************************")
 
-def addCliente:
-	
 
 # Mostra o menu
 def exibirMenu():
+	clear()
 	print("1 - Cadastro de Cliente")
 	print("2 - Cadastro de Conta")
 	print("3 - Deposito")
@@ -86,7 +125,7 @@ def exibirMenu():
 	option = int(input("Escolha uma opcao: "))
 	return option
 
-cto = Conta("1234")
+clientes = Clientes()
 
 while True:
 	op = exibirMenu()
@@ -94,20 +133,59 @@ while True:
 		print("Fim do Programa")
 		break
 	elif (op == 1):
-		pass
+		nome = raw_input("Nome do cliente: ")
+		numero = input("Numero do cliente: ")
+		cliente = Cliente(nome, numero)
+		clientes.add(cliente)
 	elif (op == 2):
-		pass
+		nome = raw_input("Nome do cliente: ")
+		cliente = clientes.procura(nome)
+		if(cliente is None):
+			print("** CLIENTE NAO ENCONTRADO **")
+			raw_input("Pressione <ENTER> para continuar")
+			continue
+			
+		numero = input("Numero da conta: ")
+		limite = float(input("Limite da conta: "))
+		if (limite==0):
+			cto = Conta(numero, cliente)
+		else:
+			cto = ContaEspecial(numero, limite, cliente)
+
+		cliente.add(cto)
+
 	elif (op == 3):
 		conta = input("Numero da conta para deposito: ")
+		cto = clientes.conta(conta)
+		if(cto is None):
+			print("** CONTA NAO ENCONTRADA **")
+			raw_input("Pressione <ENTER> para continuar")
+			continue
+		
 		cto.deposito(float(input("Valor do deposito: ")))
 	elif (op == 4):
 		conta = input("Numero da conta para saque: ")
+		cto = clientes.conta(conta)
+		if(cto is None):
+			print("** CONTA NAO ENCONTRADA **")
+			raw_input("Pressione <ENTER> para continuar")
+			continue
 		cto.saque(float(input("Valor do saque: ")))
 	elif (op == 5):
 		conta = input("Numero da conta para extrato: ")
+		cto = clientes.conta(conta)
+		if(cto is None):
+			print("** CONTA NAO ENCONTRADA **")
+			raw_input("Pressione <ENTER> para continuar")
+			continue
 		cto.extrato()
+		raw_input("Pressione <ENTER> para continuar")
+	elif (op==6):
+		clientes.listagem()
+		raw_input("Pressione <ENTER> para continuar")
 	else:
 		print("Opcao invalida")
+		raw_input("Pressione <ENTER> para continuar")
 	
 
 
